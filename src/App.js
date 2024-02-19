@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { Button } from '@mui/material';
 
 function App() {
   const [showData, setShowData] = useState(null);
   const [imgList, setImgList] = useState(null);
   const [showIndexNumber, setShowIndexNumber] = useState(0);
+  const [mirror, changeMirrorFlag] = useState(false);
 
-  const changeUIComp = <div>
-    <button onClick={
+  const changeUIComp = <div style={{
+    padding: 10
+  }}>
+    <Button variant='contained' onClick={
       () => {
         let index = showIndexNumber - 1;
         if (index < 0) {
@@ -15,22 +19,27 @@ function App() {
         setShowIndexNumber(index);
         setShowData(imgList[index]);
       }
-    }>←</button>
-    <button onClick={
+    }>←</Button>
+    <Button variant='contained' onClick={
       () => {
         let index = showIndexNumber + 1;
         index %= imgList.length;
         setShowIndexNumber(index);
         setShowData(imgList[index]);
       }
-    }>→</button>
-    <button onClick={
+    }>→</Button>
+    <Button variant='contained' onClick={
       () => {
         let index = Math.trunc(Math.random() * imgList.length);
         setShowIndexNumber(index);
         setShowData(imgList[index]);
       }
-    }>RANDOM</button>
+    }>RANDOM</Button>
+    <Button variant='contained' onClick={
+      () => {
+        changeMirrorFlag(!mirror);
+      }
+    }>MIRROR</Button>
   </div>
 
   const getFiles = async (dh) => {
@@ -66,12 +75,16 @@ function App() {
       height: '100vmin'
     }}>
       {
-        showData ? <dir>
-          <img
-            src={showData.data}
-            height={800}
-            width={'auto'}
-          />
+        showData ? <div>
+          <div style={{
+            transform: `scale(${mirror ? -1 : 1}, 1)`
+          }}>
+            <img
+              src={showData.data}
+              height={800}
+              width={'auto'}
+            />
+          </div>
           <p style={{
             borderRadius: '100px',
             backgroundColor: 'black',
@@ -80,10 +93,10 @@ function App() {
             fontStyle: 'bold',
             display: 'block',
           }}>{`${showData.name} ${showIndexNumber+1}/${imgList.length}`}</p>
-        </dir> : null
+        </div> : null
       }
       {showData ? changeUIComp : null}
-      <button onClick={async () => {
+      <Button variant='contained' onClick={async () => {
         try {
           let list = await getFiles(await window.showDirectoryPicker())
           setImgList(list);
@@ -92,7 +105,7 @@ function App() {
         } catch (e) {
           console.log(e);
         }
-      }}>ディレクトリを選択</button>
+      }}>ディレクトリを選択</Button>
     </div>
   );
 }
