@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button } from '@mui/material';
+import { getFiles, searchDirectory } from "./FileSearch";
 
 function App() {
   const [showData, setShowData] = useState(null);
@@ -42,32 +43,6 @@ function App() {
     }>MIRROR</Button>
   </div>
 
-  const getFiles = async (dh) => {
-    let list = []
-    for await (let [name, handle] of dh) {
-      switch (handle.kind) {
-        case 'file':
-          let fileData = await handle.getFile();
-          switch (fileData.type) {
-            case 'image/gif':
-            case 'image/png':
-            case 'image/jpg':
-            case 'image/jpeg':
-              list.push({
-                data: URL.createObjectURL(await handle.getFile()),
-                name: name,
-              })
-              break;
-          }
-          break;
-        case 'directory':
-          list = list.concat(await getFiles(await dh.getDirectoryHandle(handle.name)))
-          break;
-      }
-    }
-    return list;
-  }
-
   return (
     <div style={{
       textAlign: 'center',
@@ -98,7 +73,7 @@ function App() {
       {showData ? changeUIComp : null}
       <Button variant='contained' onClick={async () => {
         try {
-          let list = await getFiles(await window.showDirectoryPicker())
+          let list = await getFiles(await searchDirectory())
           setImgList(list);
           setShowIndexNumber(0);
           setShowData(list[0]);
